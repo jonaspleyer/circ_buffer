@@ -318,7 +318,6 @@ mod test_circ_buffer {
     #[cfg(feature = "serde")]
     mod serde {
         use crate::*;
-        use serde::{Deserialize, Serialize};
 
         #[test]
         fn test_serialize_full() {
