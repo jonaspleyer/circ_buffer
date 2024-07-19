@@ -11,10 +11,7 @@
 //! # Features
 //! - [serde](https://serde.rs/) allows for deserialization of the RingBuffer
 
-#![cfg_attr(all(
-    not(test),
-    not(feature = "serde")
-), no_std)]
+#![cfg_attr(all(not(test), not(feature = "serde")), no_std)]
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -229,7 +226,6 @@ where
     }
 }
 
-
 #[cfg(test)]
 mod test_circ_buffer {
     use super::*;
@@ -338,8 +334,7 @@ mod test_circ_buffer {
             for i in 0..50 {
                 let circ_buffer_values: Vec<_> = (0..i).collect();
                 let string = format!("{:?}", circ_buffer_values);
-                let circ_buffer: RingBuffer<_, 100> =
-                    serde_json::de::from_str(&string).unwrap();
+                let circ_buffer: RingBuffer<_, 100> = serde_json::de::from_str(&string).unwrap();
                 assert_eq!(circ_buffer.iter().collect::<Vec<_>>(), circ_buffer_values);
             }
         }
