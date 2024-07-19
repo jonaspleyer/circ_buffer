@@ -8,7 +8,7 @@ A `no_std` crate for a fixed-size statically allocated ring-buffer with optional
 
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg?style=flat-square)]()
 [![License Apache](https://img.shields.io/badge/License-Apache%202.0-brightgreen.svg?style=flat-square)](https://opensource.org/licenses/Apache-2.0)
-[![Test Status](https://img.shields.io/github/actions/workflow/status/jonaspleyer/circ_buffer/test.yml?label=Test&style=flat-square)](https://github.com/jonaspleyer/cellular_raza/actions)
+[![Test Status](https://img.shields.io/github/actions/workflow/status/jonaspleyer/circ_buffer/test.yml?label=Test&style=flat-square)](https://github.com/jonaspleyer/circ_buffer/actions)
 [![Crate](https://img.shields.io/crates/v/circ_buffer.svg?style=flat-square)](https://crates.io/crates/circ_buffer)
 [![API](https://docs.rs/circ_buffer/badge.svg?style=flat-square)](https://docs.rs/circ_buffer)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-lightgray.svg?style=flat-square)](https://github.com/jonaspleyer/circ_buffer#rust-version-requirements)
