@@ -141,6 +141,7 @@ where
 }
 
 impl<T, const N: usize> RingBuffer<T, N> {
+    /// Creates a new empty [RingBuffer]
     pub fn new() -> Self {
         Self {
             items: unsafe { core::mem::MaybeUninit::uninit().assume_init() },
