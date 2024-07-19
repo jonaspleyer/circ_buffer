@@ -148,6 +148,11 @@ impl<T, const N: usize> RingBuffer<T, N> {
             size: 0,
         }
     }
+
+    /// Gets the current size of the [RingBuffer]
+    pub fn get_size(&self) -> usize {
+        self.size
+    }
 }
 
 impl<T, const N: usize> Default for RingBuffer<T, N> {
