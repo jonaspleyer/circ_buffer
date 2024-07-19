@@ -30,6 +30,7 @@
 //! - [serde](https://serde.rs/) allows for deserialization of the RingBuffer
 
 #![cfg_attr(all(not(test), not(feature = "serde")), no_std)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -178,6 +179,7 @@ impl<T, const N: usize> RingBuffer<T, N> {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<T, const N: usize> Serialize for RingBuffer<T, N>
 where
     T: Serialize,
@@ -196,11 +198,13 @@ where
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 struct FixedSizedRingBufferVisitor<T, const N: usize> {
     phantom: core::marker::PhantomData<T>,
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de, T, const N: usize> serde::de::Visitor<'de> for FixedSizedRingBufferVisitor<T, N>
 where
     T: Deserialize<'de>,
@@ -228,6 +232,7 @@ where
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de, T, const N: usize> Deserialize<'de> for RingBuffer<T, N>
 where
     T: Deserialize<'de>,

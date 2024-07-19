@@ -5,6 +5,9 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A bare-metal fixed-size statically allocated ring-buffer with optional serde (De)-Serialization."
 
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "doc_cfg" ]
+
 [dependencies]
 serde = { version = "1.0.204", optional = true }
 
