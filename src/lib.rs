@@ -87,23 +87,36 @@ pub struct RingBuffer<T, const N: usize> {
 /// assert_eq!(elements.len(), 4);
 /// assert_eq!(elements, vec![&33, &4, &5, &6]);
 /// ```
-pub struct RingBufferIter<'a, T, const N: usize> {
-    items: &'a [core::mem::MaybeUninit<T>; N],
+pub struct RingBufferIter<T, const N: usize> {
+    items: [core::mem::MaybeUninit<T>; N],
     current: usize,
     left_size: usize,
 }
 
-impl<'a, T, const N: usize> Iterator for RingBufferIter<'a, T, N> {
-    type Item = &'a T;
+impl<T, const N: usize> Iterator for RingBufferIter<T, N> {
+    type Item = T;
 
-    fn next(&mut self) -> Option<&'a T> {
+    fn next(&mut self) -> Option<T> {
         if self.left_size == 0 {
             return None;
         }
         let index = self.current;
         self.current = (self.current + 1) % N;
         self.left_size -= 1;
-        Some(unsafe { self.items[index].assume_init_ref() })
+        Some(unsafe { self.items[index].assume_init_read() })
+    }
+}
+
+impl<T, const N: usize> IntoIterator for RingBuffer<T, N> {
+    type Item = T;
+    type IntoIter = RingBufferIter<T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        RingBufferIter {
+            items: self.items,
+            current: self.first,
+            left_size: self.size,
+        }
     }
 }
 
@@ -169,9 +182,11 @@ impl<T, const N: usize> RingBuffer<T, N> {
     }
 
     /// Iterate over references to elements of the RingBuffer.
-    pub fn iter<'a>(&'a self) -> RingBufferIter<'a, T, N> {
+    pub fn iter<'a>(&'a self) -> RingBufferIter<&'a T, N> {
         RingBufferIter {
-            items: &self.items,
+            items: self.items.each_ref().map(|u| {
+                core::mem::MaybeUninit::new(unsafe { core::mem::MaybeUninit::assume_init_ref(u) })
+            }),
             current: self.first,
             left_size: self.size,
         }
