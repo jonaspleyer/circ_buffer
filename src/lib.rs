@@ -108,13 +108,19 @@ where
     }
 }
 
-impl<T, const N: usize> Default for RingBuffer<T, N> {
-    fn default() -> Self {
+impl<T, const N: usize> RingBuffer<T, N> {
+    pub fn new() -> Self {
         Self {
             items: unsafe { core::mem::MaybeUninit::uninit().assume_init() },
             first: 0,
             size: 0,
         }
+    }
+}
+
+impl<T, const N: usize> Default for RingBuffer<T, N> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
