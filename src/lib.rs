@@ -31,6 +31,7 @@
 
 #![cfg_attr(all(not(test), not(feature = "serde")), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(missing_docs)]
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
