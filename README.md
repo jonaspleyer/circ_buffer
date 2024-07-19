@@ -1,5 +1,5 @@
 <div align="center">
-    <img alt="circ_buffer" src="doc/lorenz.svg" width="320"/>
+    <h2>circ_buffer</h2>
 </div>
 <br/>
 
