@@ -3,6 +3,10 @@ name = "circ_buffer"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
+description = "\
+    A bare-metal fixed-size statically allocated ring-buffer\
+    with optional serde (De)-Serialization.\
+"
 
 [dependencies]
 serde = { version = "1.0.204", optional = true }
