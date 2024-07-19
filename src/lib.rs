@@ -18,12 +18,12 @@
 //! ring_buffer.push("sine lege fidem");
 //! ring_buffer.push("rectumque colebat.");
 //!
-//! let elements: Vec<_> = ring_buffer.iter().collect();
-//! assert_eq!(*elements[0], "aetas, quae");
-//! assert_eq!(*elements[1], "vindice nullo");
-//! assert_eq!(*elements[2], "sponte sua,");
-//! assert_eq!(*elements[3], "sine lege fidem");
-//! assert_eq!(*elements[4], "rectumque colebat.");
+//! let elements: Vec<_> = ring_buffer.into_iter().collect();
+//! assert_eq!(elements[0], "aetas, quae");
+//! assert_eq!(elements[1], "vindice nullo");
+//! assert_eq!(elements[2], "sponte sua,");
+//! assert_eq!(elements[3], "sine lege fidem");
+//! assert_eq!(elements[4], "rectumque colebat.");
 //! ```
 //!
 //! # Features
