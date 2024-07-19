@@ -1,11 +1,29 @@
 //! A const-sized Ring-Buffer datastructure.
 //!
 //! The crate is `no_std` unless the [serde](https://serde.rs/) feature is activated.
+//! It uses elements from the standard library for testing purposes but does not rely on them for
+//! internal implementation details.
 //!
 //! # Example
 //!
 //! ```
 //! use circ_buffer::RingBuffer;
+//!
+//! let mut ring_buffer = RingBuffer::<_, 5>::new();
+//! ring_buffer.push("Aurea prima");
+//! ring_buffer.push("sata est");
+//! ring_buffer.push("aetas, quae");
+//! ring_buffer.push("vindice nullo");
+//! ring_buffer.push("sponte sua,");
+//! ring_buffer.push("sine lege fidem");
+//! ring_buffer.push("rectumque colebat.");
+//!
+//! let elements: Vec<_> = ring_buffer.iter().collect();
+//! assert_eq!(*elements[0], "aetas, quae");
+//! assert_eq!(*elements[1], "vindice nullo");
+//! assert_eq!(*elements[2], "sponte sua,");
+//! assert_eq!(*elements[3], "sine lege fidem");
+//! assert_eq!(*elements[4], "rectumque colebat.");
 //! ```
 //!
 //! # Features
