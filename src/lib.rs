@@ -1,6 +1,6 @@
 //! A const-sized Ring-Buffer datastructure.
 //!
-//! The crate is `no_std` unless the [serde](https://serde.rs/) feature is activated.
+//! The crate is `no_std`.
 //! It uses elements from the standard library for testing purposes but does not rely on them for
 //! internal implementation details.
 //!
@@ -29,7 +29,7 @@
 //! # Features
 //! - [serde](https://serde.rs/) allows for deserialization of the RingBuffer
 
-#![cfg_attr(all(not(test), not(feature = "serde")), no_std)]
+#![cfg_attr(not(test), no_std)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_docs)]
 
@@ -231,14 +231,17 @@ impl<'de, T, const N: usize> serde::de::Visitor<'de> for FixedSizedRingBufferVis
 where
     T: Deserialize<'de>,
 {
-    type Value = Vec<T>;
+    type Value = RingBuffer<T, N>;
 
-    fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-        formatter.write_str(&format!(
-            "{} or less values of the type {}",
-            N,
-            std::any::type_name::<T>()
-        ))
+    fn expecting(&self, formatter: &mut core::fmt::Formatter) -> core::fmt::Result {
+        core::fmt::write(
+            formatter,
+            core::format_args!(
+                "{} or less values of the type {}",
+                N,
+                core::any::type_name::<T>()
+            ),
+        )
     }
 
     fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
