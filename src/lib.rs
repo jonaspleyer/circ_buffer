@@ -3,7 +3,6 @@
 //! The crate is `no_std`.
 //! It uses elements from the standard library for testing purposes but does not rely on them for
 //! internal implementation details.
-//! Memory is zeroed after usage such that no leakage occurs.
 //!
 //! # Example
 //!
