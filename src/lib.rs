@@ -248,9 +248,17 @@ where
     where
         A: serde::de::SeqAccess<'de>,
     {
-        let mut elements = Vec::new();
+        let mut elements = RingBuffer::new();
+        let mut counter = 0;
         while let Some(element) = seq.next_element()? {
+            if counter >= N {
+                return Err(serde::de::Error::invalid_length(
+                    N,
+                    &"Too many values to unpack",
+                ));
+            }
             elements.push(element);
+            counter += 1;
         }
         Ok(elements)
     }
@@ -269,10 +277,9 @@ where
         let elements = deserializer.deserialize_seq(FixedSizedRingBufferVisitor::<T, N> {
             phantom: core::marker::PhantomData,
         })?;
-        let mut circ_buffer = RingBuffer::default();
-        if elements.len() > N {
-            todo!()
-        }
+        let mut circ_buffer = RingBuffer::new();
+        let mut counter = 0;
+        let max_size = elements.get_size();
         for element in elements.into_iter() {
             circ_buffer.push(element);
         }
@@ -390,6 +397,15 @@ mod test_circ_buffer {
                 let circ_buffer: RingBuffer<_, 100> = serde_json::de::from_str(&string).unwrap();
                 assert_eq!(circ_buffer.iter().collect::<Vec<_>>(), circ_buffer_values);
             }
+        }
+
+        #[test]
+        #[should_panic]
+        fn test_deserialize_too_many_values() {
+            let circ_buffer_values: Vec<_> = (0..11).collect();
+            let string = format!("{:?}", circ_buffer_values);
+            println!("{}", string);
+            let _circ_buffer: RingBuffer<usize, 10> = serde_json::de::from_str(&string).unwrap();
         }
     }
 }
