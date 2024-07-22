@@ -61,7 +61,7 @@ use serde::{Deserialize, Serialize};
 /// ```
 #[derive(Debug)]
 pub struct RingBuffer<T, const N: usize> {
-    items: [core::mem::MaybeUninit<T>; N],
+    items: ItemStorage<T, N>,
     first: usize,
     size: usize,
 }
@@ -89,10 +89,13 @@ pub struct RingBuffer<T, const N: usize> {
 /// assert_eq!(elements, vec![&33, &4, &5, &6]);
 /// ```
 pub struct RingBufferIter<T, const N: usize> {
-    items: [core::mem::MaybeUninit<T>; N],
+    items: ItemStorage<T, N>,
     current: usize,
     left_size: usize,
 }
+
+#[derive(Debug)]
+struct ItemStorage<T, const N: usize>([core::mem::MaybeUninit<T>; N]);
 
 impl<T, const N: usize> Iterator for RingBufferIter<T, N> {
     type Item = T;
@@ -104,7 +107,7 @@ impl<T, const N: usize> Iterator for RingBufferIter<T, N> {
         let index = self.current;
         self.current = (self.current + 1) % N;
         self.left_size -= 1;
-        Some(unsafe { self.items[index].assume_init_read() })
+        Some(unsafe { self.items.0[index].assume_init_read() })
     }
 }
 
@@ -130,11 +133,11 @@ where
             unsafe { core::mem::MaybeUninit::uninit().assume_init() };
         for i in 0..self.size {
             let i = (self.first + i) % N;
-            new_items[i].write(unsafe { self.items[i].assume_init_ref().clone() });
+            new_items[i].write(unsafe { self.items.0[i].assume_init_ref().clone() });
         }
 
         Self {
-            items: new_items,
+            items: ItemStorage(new_items),
             first: self.first,
             size: self.size,
         }
@@ -163,6 +166,12 @@ impl<T, const N: usize> Default for RingBuffer<T, N> {
     }
 }
 
+impl<T, const N: usize> Drop for ItemStorage<T, N> {
+    fn drop(&mut self) {
+        self.0 = unsafe { core::mem::zeroed() };
+    }
+}
+
 impl<T, const N: usize> RingBuffer<T, N> {
     /// Append one element to the buffer.
     ///
@@ -183,7 +192,7 @@ impl<T, const N: usize> RingBuffer<T, N> {
     /// ```
     pub fn push(&mut self, new_item: T) {
         let last = (self.first + self.size) % N;
-        self.items[last].write(new_item);
+        self.items.0[last].write(new_item);
         self.first = (self.first + self.size.div_euclid(N)) % N;
         self.size = N.min(self.size + 1);
     }
@@ -191,9 +200,9 @@ impl<T, const N: usize> RingBuffer<T, N> {
     /// Iterate over references to elements of the RingBuffer.
     pub fn iter<'a>(&'a self) -> RingBufferIter<&'a T, N> {
         RingBufferIter {
-            items: self.items.each_ref().map(|u| {
+            items: ItemStorage(self.items.0.each_ref().map(|u| {
                 core::mem::MaybeUninit::new(unsafe { core::mem::MaybeUninit::assume_init_ref(u) })
-            }),
+            })),
             current: self.first,
             left_size: self.size,
         }
@@ -278,8 +287,6 @@ where
             phantom: core::marker::PhantomData,
         })?;
         let mut circ_buffer = RingBuffer::new();
-        let mut counter = 0;
-        let max_size = elements.get_size();
         for element in elements.into_iter() {
             circ_buffer.push(element);
         }
