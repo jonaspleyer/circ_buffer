@@ -58,7 +58,7 @@ use serde::{Deserialize, Serialize};
 /// assert_eq!(elements.next(), Some(&6));
 /// assert_eq!(elements.next(), Some(&7));
 /// ```
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct RingBuffer<T, const N: usize>(ItemStorage<T, N>);
 
 /// Iterator of the [RingBuffer] struct.
@@ -115,23 +115,23 @@ impl<T, const N: usize> IntoIterator for RingBuffer<T, N> {
     }
 }
 
-impl<T, const N: usize> Clone for RingBuffer<T, N>
+impl<T, const N: usize> Clone for ItemStorage<T, N>
 where
     T: Clone,
 {
     fn clone(&self) -> Self {
         let mut new_items: [core::mem::MaybeUninit<T>; N] =
             unsafe { core::mem::MaybeUninit::uninit().assume_init() };
-        for i in 0..self.0.size {
-            let i = (self.0.first + i) % N;
-            new_items[i].write(unsafe { self.0.items[i].assume_init_ref().clone() });
+        for i in 0..self.size {
+            let i = (self.first + i) % N;
+            new_items[i].write(unsafe { self.items[i].assume_init_ref().clone() });
         }
 
-        Self(ItemStorage {
+        ItemStorage {
             items: new_items,
-            first: self.0.first,
-            size: self.0.size,
-        })
+            first: self.first,
+            size: self.size,
+        }
     }
 }
 
