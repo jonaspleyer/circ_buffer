@@ -433,10 +433,9 @@ mod test_circ_buffer {
         ring_buffer.push(vec![87, 3, 0, 1]);
         ring_buffer.push(vec![36, 048, 5, 20, 40]);
         ring_buffer.push(vec![16, 40, 3, 5, 3]);
-        for e in ring_buffer.into_iter() {
+        for e in ring_buffer.iter() {
             println!("{:?}", e);
         }
-        assert!(false);
     }
 
     #[cfg(feature = "serde")]
