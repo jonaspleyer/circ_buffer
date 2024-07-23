@@ -391,6 +391,29 @@ mod test_circ_buffer {
         assert_eq!(COUNTER.load(std::sync::atomic::Ordering::Relaxed), 4);
     }
 
+    #[test]
+    fn test_miri_push_drop_valid() {
+        let mut ring_buffer = RingBuffer::<String, 2>::new();
+        ring_buffer.push(format!("some string"));
+        ring_buffer.push(format!("this has something"));
+        ring_buffer.push(format!("this should drop the first string"));
+        ring_buffer.push(format!("this should drop the second string"));
+    }
+
+    #[test]
+    fn test_miri_iter_valid() {
+        let mut ring_buffer = RingBuffer::<Vec<u8>, 8>::new();
+        ring_buffer.push(vec![1, 2, 3]);
+        ring_buffer.push(vec![128, 00, 3]);
+        ring_buffer.push(vec![87, 3, 0, 1]);
+        ring_buffer.push(vec![36, 048, 5, 20, 40]);
+        ring_buffer.push(vec![16, 40, 3, 5, 3]);
+        for e in ring_buffer.into_iter() {
+            println!("{:?}", e);
+        }
+        assert!(false);
+    }
+
     #[cfg(feature = "serde")]
     mod serde {
         use crate::*;
