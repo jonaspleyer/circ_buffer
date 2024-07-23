@@ -18,12 +18,11 @@
 //! ring_buffer.push("sine lege fidem");
 //! ring_buffer.push("rectumque colebat.");
 //!
-//! let elements: Vec<_> = ring_buffer.into_iter().collect();
-//! assert_eq!(elements[0], "aetas, quae");
-//! assert_eq!(elements[1], "vindice nullo");
-//! assert_eq!(elements[2], "sponte sua,");
-//! assert_eq!(elements[3], "sine lege fidem");
-//! assert_eq!(elements[4], "rectumque colebat.");
+//! assert_eq!(ring_buffer[0], "aetas, quae");
+//! assert_eq!(ring_buffer[1], "vindice nullo");
+//! assert_eq!(ring_buffer[2], "sponte sua,");
+//! assert_eq!(ring_buffer[3], "sine lege fidem");
+//! assert_eq!(ring_buffer[4], "rectumque colebat.");
 //! ```
 //!
 //! # Features
@@ -158,6 +157,13 @@ impl<T, const N: usize> Default for RingBuffer<T, N> {
     }
 }
 
+impl<T, const N: usize> core::ops::Index<usize> for RingBuffer<T, N> {
+    type Output = T;
+    fn index(&self, index: usize) -> &Self::Output {
+        self.0.index(index)
+    }
+}
+
 impl<T, const N: usize> Drop for ItemStorage<T, N> {
     fn drop(&mut self) {
         for n in self.first..(self.first + self.size) % N {
@@ -166,6 +172,16 @@ impl<T, const N: usize> Drop for ItemStorage<T, N> {
                 None => (),
             }
         }
+    }
+}
+
+impl<T, const N: usize> core::ops::Index<usize> for ItemStorage<T, N> {
+    type Output = T;
+    fn index(&self, index: usize) -> &Self::Output {
+        if index > self.size {
+            panic!("index > size");
+        }
+        unsafe { core::mem::MaybeUninit::assume_init_ref(&self.items[(self.first + index) % N]) }
     }
 }
 
