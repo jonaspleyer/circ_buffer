@@ -166,11 +166,8 @@ impl<T, const N: usize> core::ops::Index<usize> for RingBuffer<T, N> {
 
 impl<T, const N: usize> Drop for ItemStorage<T, N> {
     fn drop(&mut self) {
-        for n in self.first..(self.first + self.size) % N {
-            match self.items.get_mut(n) {
-                Some(e) => unsafe { e.assume_init_drop() },
-                None => (),
-            }
+        for n in 0..self.size {
+            unsafe { self.items.get_unchecked_mut((self.first + n) % N).assume_init_drop() };
         }
     }
 }
