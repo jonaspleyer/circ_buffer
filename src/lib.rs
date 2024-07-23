@@ -356,6 +356,25 @@ mod test_circ_buffer {
         }
     }
 
+    #[test]
+    fn test_drop_valid() {
+        #[allow(unused)]
+        struct S(i32);
+        static COUNTER: std::sync::atomic::AtomicI32 = std::sync::atomic::AtomicI32::new(0);
+        impl Drop for S {
+            fn drop(&mut self) {
+                COUNTER.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            }
+        }
+        let mut circ_buffer = RingBuffer::<_, 234>::new();
+        circ_buffer.push(S(5));
+        circ_buffer.push(S(2));
+        circ_buffer.push(S(11));
+        circ_buffer.push(S(87));
+        drop(circ_buffer);
+        assert_eq!(COUNTER.load(std::sync::atomic::Ordering::Relaxed), 4);
+    }
+
     #[cfg(feature = "serde")]
     mod serde {
         use crate::*;
