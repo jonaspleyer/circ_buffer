@@ -106,6 +106,29 @@ impl<T, const N: usize> Iterator for RingBufferIter<T, N> {
     }
 }
 
+/// Produced by the [iter](RingBuffer::iter) method of the [RingBuffer].
+///
+/// This iterates over references of the [RingBuffer].
+pub struct RingBufferIterRef<'a, T, const N: usize> {
+    items: &'a [core::mem::MaybeUninit<T>; N],
+    size: usize,
+    first: usize,
+}
+
+impl<'a, T, const N: usize> Iterator for RingBufferIterRef<'a, T, N> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.size == 0 {
+            return None;
+        }
+        let index = self.first;
+        self.first = (self.first + 1) % N;
+        self.size -= 1;
+        Some(unsafe { self.items[index].assume_init_ref() })
+    }
+}
+
 impl<T, const N: usize> IntoIterator for RingBuffer<T, N> {
     type Item = T;
     type IntoIter = RingBufferIter<T, N>;
@@ -211,14 +234,12 @@ impl<T, const N: usize> RingBuffer<T, N> {
     }
 
     /// Iterate over references to elements of the RingBuffer.
-    pub fn iter<'a>(&'a self) -> RingBufferIter<&'a T, N> {
-        RingBufferIter(ItemStorage {
-            items: self.0.items.each_ref().map(|u| {
-                core::mem::MaybeUninit::new(unsafe { core::mem::MaybeUninit::assume_init_ref(u) })
-            }),
+    pub fn iter<'a>(&'a self) -> RingBufferIterRef<'a, T, N> {
+        RingBufferIterRef {
+            items: &self.0.items,
             first: self.0.first,
             size: self.0.size,
-        })
+        }
     }
 }
 
