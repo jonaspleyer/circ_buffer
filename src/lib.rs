@@ -160,7 +160,12 @@ impl<T, const N: usize> Default for RingBuffer<T, N> {
 
 impl<T, const N: usize> Drop for ItemStorage<T, N> {
     fn drop(&mut self) {
-        self.0 = unsafe { core::mem::zeroed() };
+        for n in self.first..(self.first + self.size) % N {
+            match self.items.get_mut(n) {
+                Some(e) => unsafe { e.assume_init_drop() },
+                None => (),
+            }
+        }
     }
 }
 
