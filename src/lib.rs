@@ -60,11 +60,7 @@ use serde::{Deserialize, Serialize};
 /// assert_eq!(elements.next(), Some(&7));
 /// ```
 #[derive(Debug)]
-pub struct RingBuffer<T, const N: usize> {
-    items: ItemStorage<T, N>,
-    first: usize,
-    size: usize,
-}
+pub struct RingBuffer<T, const N: usize>(ItemStorage<T, N>);
 
 /// Iterator of the [RingBuffer] struct.
 ///
@@ -88,26 +84,26 @@ pub struct RingBuffer<T, const N: usize> {
 /// assert_eq!(elements.len(), 4);
 /// assert_eq!(elements, vec![&33, &4, &5, &6]);
 /// ```
-pub struct RingBufferIter<T, const N: usize> {
-    items: ItemStorage<T, N>,
-    current: usize,
-    left_size: usize,
-}
+pub struct RingBufferIter<T, const N: usize>(ItemStorage<T, N>);
 
 #[derive(Debug)]
-struct ItemStorage<T, const N: usize>([core::mem::MaybeUninit<T>; N]);
+struct ItemStorage<T, const N: usize> {
+    items: [core::mem::MaybeUninit<T>; N],
+    size: usize,
+    first: usize,
+}
 
 impl<T, const N: usize> Iterator for RingBufferIter<T, N> {
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        if self.left_size == 0 {
+        if self.0.size == 0 {
             return None;
         }
-        let index = self.current;
-        self.current = (self.current + 1) % N;
-        self.left_size -= 1;
-        Some(unsafe { self.items.0[index].assume_init_read() })
+        let index = self.0.first;
+        self.0.first = (self.0.first + 1) % N;
+        self.0.size -= 1;
+        Some(unsafe { self.0.items[index].assume_init_read() })
     }
 }
 
@@ -116,11 +112,7 @@ impl<T, const N: usize> IntoIterator for RingBuffer<T, N> {
     type IntoIter = RingBufferIter<T, N>;
 
     fn into_iter(self) -> Self::IntoIter {
-        RingBufferIter {
-            items: self.items,
-            current: self.first,
-            left_size: self.size,
-        }
+        RingBufferIter(self.0)
     }
 }
 
@@ -131,32 +123,32 @@ where
     fn clone(&self) -> Self {
         let mut new_items: [core::mem::MaybeUninit<T>; N] =
             unsafe { core::mem::MaybeUninit::uninit().assume_init() };
-        for i in 0..self.size {
-            let i = (self.first + i) % N;
-            new_items[i].write(unsafe { self.items.0[i].assume_init_ref().clone() });
+        for i in 0..self.0.size {
+            let i = (self.0.first + i) % N;
+            new_items[i].write(unsafe { self.0.items[i].assume_init_ref().clone() });
         }
 
-        Self {
-            items: ItemStorage(new_items),
-            first: self.first,
-            size: self.size,
-        }
+        Self(ItemStorage {
+            items: new_items,
+            first: self.0.first,
+            size: self.0.size,
+        })
     }
 }
 
 impl<T, const N: usize> RingBuffer<T, N> {
     /// Creates a new empty [RingBuffer]
     pub fn new() -> Self {
-        Self {
+        Self(ItemStorage {
             items: unsafe { core::mem::MaybeUninit::uninit().assume_init() },
             first: 0,
             size: 0,
-        }
+        })
     }
 
     /// Gets the current size of the [RingBuffer]
     pub fn get_size(&self) -> usize {
-        self.size
+        self.0.size
     }
 }
 
@@ -191,21 +183,21 @@ impl<T, const N: usize> RingBuffer<T, N> {
     /// assert_eq!(elements, vec![&2.0, &3.0, &4.0, &5.0, &6.0])
     /// ```
     pub fn push(&mut self, new_item: T) {
-        let last = (self.first + self.size) % N;
-        self.items.0[last].write(new_item);
-        self.first = (self.first + self.size.div_euclid(N)) % N;
-        self.size = N.min(self.size + 1);
+        let last = (self.0.first + self.0.size) % N;
+        self.0.items[last].write(new_item);
+        self.0.first = (self.0.first + self.0.size.div_euclid(N)) % N;
+        self.0.size = N.min(self.0.size + 1);
     }
 
     /// Iterate over references to elements of the RingBuffer.
     pub fn iter<'a>(&'a self) -> RingBufferIter<&'a T, N> {
-        RingBufferIter {
-            items: ItemStorage(self.items.0.each_ref().map(|u| {
+        RingBufferIter(ItemStorage {
+            items: self.0.items.each_ref().map(|u| {
                 core::mem::MaybeUninit::new(unsafe { core::mem::MaybeUninit::assume_init_ref(u) })
-            })),
-            current: self.first,
-            left_size: self.size,
-        }
+            }),
+            first: self.0.first,
+            size: self.0.size,
+        })
     }
 }
 
@@ -220,7 +212,7 @@ where
         S: serde::Serializer,
     {
         use serde::ser::SerializeSeq;
-        let mut s = serializer.serialize_seq(Some(self.size))?;
+        let mut s = serializer.serialize_seq(Some(self.0.size))?;
         for element in self.iter() {
             s.serialize_element(element)?;
         }
