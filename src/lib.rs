@@ -205,6 +205,9 @@ impl<T, const N: usize> RingBuffer<T, N> {
     /// ```
     pub fn push(&mut self, new_item: T) {
         let last = (self.0.first + self.0.size) % N;
+        if self.0.size == N {
+            unsafe { self.0.items.get_unchecked_mut(last).assume_init_drop() };
+        }
         self.0.items[last].write(new_item);
         self.0.first = (self.0.first + self.0.size.div_euclid(N)) % N;
         self.0.size = N.min(self.0.size + 1);
