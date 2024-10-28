@@ -67,6 +67,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v2
 
+      - name: Install Rustup
+        uses: dtolnay/rust-toolchain@nightly
+
       - name: Install Miri
         run: |
           rustup toolchain install nightly --component miri
