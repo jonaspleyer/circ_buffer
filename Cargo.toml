@@ -1,6 +1,6 @@
 [package]
 name = "circ_buffer"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 license = "MIT OR Apache-2.0"
 description = "A bare-metal fixed-size statically allocated ring-buffer with optional serde (De)-Serialization."
