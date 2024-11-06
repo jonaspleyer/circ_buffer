@@ -228,13 +228,15 @@ impl<T, const N: usize> RingBuffer<T, N> {
     /// assert_eq!(elements, vec![&2.0, &3.0, &4.0, &5.0, &6.0])
     /// ```
     pub fn push(&mut self, new_item: T) {
-        let last = (self.0.first + self.0.size) % N;
-        if self.0.size == N {
-            unsafe { self.0.items.get_unchecked_mut(last).assume_init_drop() };
+        if N > 0 {
+            let last = (self.0.first + self.0.size) % N;
+            if self.0.size == N {
+                unsafe { self.0.items.get_unchecked_mut(last).assume_init_drop() };
+            }
+            self.0.items[last].write(new_item);
+            self.0.first = (self.0.first + self.0.size.div_euclid(N)) % N;
+            self.0.size = N.min(self.0.size + 1);
         }
-        self.0.items[last].write(new_item);
-        self.0.first = (self.0.first + self.0.size.div_euclid(N)) % N;
-        self.0.size = N.min(self.0.size + 1);
     }
 
     /// Iterate over references to elements of the RingBuffer.
