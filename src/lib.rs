@@ -440,6 +440,16 @@ mod test_circ_buffer {
         }
     }
 
+    #[test]
+    fn test_empty_circ_buffer() {
+        let mut ring_buffer = RingBuffer::<&str, 0>::new();
+        ring_buffer.push("I am a dog");
+        ring_buffer.push("I was a dog");
+        for _ in ring_buffer.iter() {
+            panic!("This should not be called since the loop is empty");
+        }
+    }
+
     #[cfg(feature = "serde")]
     mod serde {
         use crate::*;
