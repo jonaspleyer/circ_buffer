@@ -441,10 +441,10 @@ mod test_circ_buffer {
     #[test]
     fn test_miri_push_drop_valid() {
         let mut ring_buffer = RingBuffer::<String, 2>::new();
-        ring_buffer.push(format!("some string"));
-        ring_buffer.push(format!("this has something"));
-        ring_buffer.push(format!("this should drop the first string"));
-        ring_buffer.push(format!("this should drop the second string"));
+        ring_buffer.push("some string".to_string());
+        ring_buffer.push("this has something".to_string());
+        ring_buffer.push("this should drop the first string".to_string());
+        ring_buffer.push("this should drop the second string".to_string());
     }
 
     #[test]
@@ -453,7 +453,7 @@ mod test_circ_buffer {
         ring_buffer.push(vec![1, 2, 3]);
         ring_buffer.push(vec![128, 00, 3]);
         ring_buffer.push(vec![87, 3, 0, 1]);
-        ring_buffer.push(vec![36, 048, 5, 20, 40]);
+        ring_buffer.push(vec![36, 48, 5, 20, 40]);
         ring_buffer.push(vec![16, 40, 3, 5, 3]);
         for e in ring_buffer.iter() {
             println!("{:?}", e);
