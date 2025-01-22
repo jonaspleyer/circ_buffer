@@ -172,6 +172,16 @@ impl<T, const N: usize> RingBuffer<T, N> {
     pub fn get_size(&self) -> usize {
         self.0.size
     }
+
+    /// The length of the RingBuffer
+    pub fn len(&self) -> usize {
+        self.0.size
+    }
+
+    /// Checks if the buffer is empty
+    pub fn is_empty(&self) -> bool {
+        self.0.size == 0
+    }
 }
 
 impl<T, const N: usize> Default for RingBuffer<T, N> {
