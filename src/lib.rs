@@ -349,6 +349,16 @@ mod test_circ_buffer {
     use super::*;
 
     #[test]
+    fn test_len_empty() {
+        let mut circ_buffer = RingBuffer::<_, 3>::new();
+        for i in 1..100 {
+            circ_buffer.push(i);
+            assert_eq!(circ_buffer.len(), 3.min(i));
+            assert!(!circ_buffer.is_empty());
+        }
+    }
+
+    #[test]
     fn test_pushing_full() {
         let mut circ_buffer = RingBuffer::<_, 12>::default();
         for i in 0..100 {
