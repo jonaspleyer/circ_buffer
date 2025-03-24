@@ -79,9 +79,9 @@ pub struct RingBuffer<T, const N: usize>(ItemStorage<T, N>);
 /// circ_buffer.push(4);
 /// circ_buffer.push(5);
 /// circ_buffer.push(6);
-/// let elements = circ_buffer.iter().collect::<Vec<_>>();
+/// let elements = circ_buffer.into_iter().collect::<Vec<_>>();
 /// assert_eq!(elements.len(), 4);
-/// assert_eq!(elements, vec![&33, &4, &5, &6]);
+/// assert_eq!(elements, vec![33, 4, 5, 6]);
 /// ```
 pub struct RingBufferIter<T, const N: usize>(ItemStorage<T, N>);
 
