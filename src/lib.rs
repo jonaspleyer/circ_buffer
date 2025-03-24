@@ -212,7 +212,7 @@ impl<T, const N: usize> Drop for ItemStorage<T, N> {
 impl<T, const N: usize> core::ops::Index<usize> for ItemStorage<T, N> {
     type Output = T;
     fn index(&self, index: usize) -> &Self::Output {
-        if index > self.size {
+        if index >= self.size {
             panic!("index > size");
         }
         unsafe { core::mem::MaybeUninit::assume_init_ref(&self.items[(self.first + index) % N]) }
