@@ -465,9 +465,49 @@ mod test_circ_buffer {
         let mut ring_buffer = RingBuffer::<&str, 0>::new();
         ring_buffer.push("I am a dog");
         ring_buffer.push("I was a dog");
-        for _ in ring_buffer.iter() {
-            panic!("This should not be called since the loop is empty");
+        assert_eq!(ring_buffer.get_size(), 0);
+        assert_eq!(ring_buffer.iter().next(), None);
+    }
+
+    #[test]
+    fn test_into_iter() {
+        let mut ring_buffer = RingBuffer::<_, 7>::new();
+        ring_buffer.push("1");
+        ring_buffer.push("2");
+        ring_buffer.push("3");
+        ring_buffer.push("4");
+        assert_eq!(ring_buffer.get_size(), 4);
+        let elements = ring_buffer.into_iter().collect::<Vec<_>>();
+        assert_eq!(elements, vec!["1", "2", "3", "4"]);
+    }
+
+    #[test]
+    fn test_index() {
+        let mut ring_buffer = RingBuffer::<_, 100>::new();
+        for i in 0..90 {
+            ring_buffer.push(i);
         }
+        for i in 0..90 {
+            assert_eq!(ring_buffer[i], i);
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_index_panic() {
+        let ring_buffer = RingBuffer::<usize, 1>::new();
+        let _ = ring_buffer[0];
+    }
+
+    #[test]
+    fn test_iter() {
+        let mut ring_buffer = RingBuffer::<_, 2>::new();
+        ring_buffer.push(1);
+        ring_buffer.push(2);
+        ring_buffer.push(3);
+        assert_eq!(ring_buffer.get_size(), 2);
+        let elements = ring_buffer.iter().collect::<Vec<_>>();
+        assert_eq!(elements, vec![&2, &3]);
     }
 
     #[cfg(feature = "serde")]
