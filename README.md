@@ -12,4 +12,4 @@ A `no_std` crate for a fixed-size statically allocated ring-buffer with optional
 [![Crate](https://img.shields.io/crates/v/circ_buffer.svg?style=flat-square)](https://crates.io/crates/circ_buffer)
 [![Docs](https://img.shields.io/docsrs/circ_buffer?style=flat-square)](https://docs.rs/circ_buffer)
 [![Minimum rustc version](https://img.shields.io/badge/rustc-1.36+-lightgray.svg?style=flat-square)](https://github.com/jonaspleyer/circ_buffer#rust-version-requirements)
-
+![Codecov](https://img.shields.io/codecov/c/github/jonaspleyer/circ_buffer?style=flat-square)
